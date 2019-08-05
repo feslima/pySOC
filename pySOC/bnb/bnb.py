@@ -2,7 +2,7 @@ import numpy as np
 import scipy as sp
 from scipy.linalg import sqrtm
 import timeit
-from aux_files.matrixdivide import mldivide, mrdivide
+from pySOC.utils.matrixdivide import mldivide, mrdivide
 
 
 def pb3wc(Gy, Gyd, Wd, Wn, Juu, Jud, n, tlimit=np.inf, nc=1):
@@ -113,7 +113,7 @@ def pb3wc(Gy, Gyd, Wd, Wn, Juu, Jud, n, tlimit=np.inf, nc=1):
             while not f and m2 > n2 and n2 > 0 and (not downf or not upf or not bf):
                 # loop for bidirection pruning
                 if (not upf or not bf) and n2 <= m and bound:
-                    #if np.array_equal(np.array([[21, 9, 63, 9]]), ops):
+                    # if np.array_equal(np.array([[21, 9, 63, 9]]), ops):
                         #a = 1
                     upprune()
                 else:
@@ -315,16 +315,18 @@ def pb3wc(Gy, Gyd, Wd, Wn, Juu, Jud, n, tlimit=np.inf, nc=1):
 
         nonlocal rem, h2, m2, q2
         R2 = mldivide(R1.conj().T, Y2[np.ix_(fx.reshape(-1), rem.reshape(-1))])
-        R3 = h2[rem.reshape(-1)] - np.sum(R2 * R2, axis=0, keepdims=True).conj().T
+        R3 = h2[rem.reshape(-1)] - np.sum(R2 * R2, axis=0,
+                                          keepdims=True).conj().T
         X2 = G[rem.reshape(-1), :] - R2.conj().T @ X1
         ops[0, 2] += m2
         q2[:] = np.inf
         if n2 == 1 or m > 2:
             q2[rem.reshape(-1)] = np.sum(X2.conj().T * mldivide(D, X2.conj().T), axis=0, keepdims=True).conj().T / R3 \
-                                  - 1
+                - 1
         else:
             X = mldivide(R.conj().T, X2.conj().T)  # line 333
-            q2[rem.reshape(-1)] = np.sum(X * X, axis=0, keepdims=True).conj().T / R3 - 1
+            q2[rem.reshape(-1)] = np.sum(X * X, axis=0,
+                                         keepdims=True).conj().T / R3 - 1
 
         nonlocal upff, downf, downff
         upff = True  # line 336
@@ -337,8 +339,6 @@ def pb3wc(Gy, Gyd, Wd, Wn, Juu, Jud, n, tlimit=np.inf, nc=1):
             m2 = np.sum(rem)
             q2[L.reshape(-1), 0] = np.inf
 
-
-
     def downprune():
         # downwards pruning
         nonlocal downf, fx, rem, downV, bf, downR, Xd, Xu, Y2, f, m2, nf, G, Gd, m, bound, ops, p2
@@ -349,10 +349,12 @@ def pb3wc(Gy, Gyd, Wd, Wn, Juu, Jud, n, tlimit=np.inf, nc=1):
             # single update
             D = Xd[np.ix_(rem.reshape(-1), rem.reshape(-1))]
             x = Xd[np.ix_(rem.reshape(-1), t.reshape(-1))]
-            D = D - x @ (mrdivide(x.conj().T, Xd[np.ix_(t.reshape(-1), t.reshape(-1))]))
+            D = D - x @ (mrdivide(x.conj().T,
+                                  Xd[np.ix_(t.reshape(-1), t.reshape(-1))]))
             U = Xu[np.ix_(rem.reshape(-1), rem.reshape(-1))]
             x = Xu[np.ix_(rem.reshape(-1), t.reshape(-1))]
-            U = U - x @ (mrdivide(x.conj().T, Xu[np.ix_(t.reshape(-1), t.reshape(-1))]))
+            U = U - x @ (mrdivide(x.conj().T,
+                                  Xu[np.ix_(t.reshape(-1), t.reshape(-1))]))
             downV = s0.copy()
         elif bf and np.array_equal(downV, s0) and np.sum(np.logical_and(downR, rem)) == m2:
             # no pruning
@@ -360,13 +362,15 @@ def pb3wc(Gy, Gyd, Wd, Wn, Juu, Jud, n, tlimit=np.inf, nc=1):
         else:
             # normal cases
             try:
-                R1 = sp.linalg.cholesky(Y2[np.ix_(s0.reshape(-1), s0.reshape(-1))])
-                f  = False
+                R1 = sp.linalg.cholesky(
+                    Y2[np.ix_(s0.reshape(-1), s0.reshape(-1))])
+                f = False
             except sp.linalg.LinAlgError:
                 f = True
                 return
 
-            Q = mldivide(R1, mldivide(R1.conj().T, np.eye(m2 + nf)))  # line 371
+            Q = mldivide(R1, mldivide(
+                R1.conj().T, np.eye(m2 + nf)))  # line 371
             downV = s0.copy()
             Yinv = np.zeros((s0.size, s0.size))
             Yinv[np.ix_(s0.reshape(-1), s0.reshape(-1))] = Q
@@ -387,7 +391,8 @@ def pb3wc(Gy, Gyd, Wd, Wn, Juu, Jud, n, tlimit=np.inf, nc=1):
 
         ops[0, 2] += m2
         downR = rem.copy()
-        p2[rem.reshape(-1), :] = np.expand_dims(np.diag(U), axis=1) / np.expand_dims(np.diag(D), axis=1)
+        p2[rem.reshape(-1), :] = np.expand_dims(np.diag(U),
+                                                axis=1) / np.expand_dims(np.diag(D), axis=1)
         Xd[np.ix_(rem.reshape(-1), rem.reshape(-1))] = D
         Xu[np.ix_(rem.reshape(-1), rem.reshape(-1))] = U
         p2[np.logical_not(rem).reshape(-1), :] = np.inf
@@ -408,7 +413,8 @@ def pb3wc(Gy, Gyd, Wd, Wn, Juu, Jud, n, tlimit=np.inf, nc=1):
     def update(s):
         # terminal cases to update the bound
         nonlocal Y2, G, ops, bound, B, ib, sset, bf
-        X = mldivide(sp.linalg.cholesky(Y2[np.ix_(s.reshape(-1), s.reshape(-1))]).conj().T, G[s.reshape(-1), :])
+        X = mldivide(sp.linalg.cholesky(
+            Y2[np.ix_(s.reshape(-1), s.reshape(-1))]).conj().T, G[s.reshape(-1), :])
         lambda_v = np.linalg.eig(X.conj().T @ X)[0]
         ops[0, 0] += 1
         bf0 = np.sum(lambda_v < bound)
@@ -437,10 +443,12 @@ def pb3wc(Gy, Gyd, Wd, Wn, Juu, Jud, n, tlimit=np.inf, nc=1):
     Gd = G.copy()
     Xd = Y2.copy()
     Xu = Xd.copy()
-    h2 = np.expand_dims(np.diag(Y2), axis=1)  # expand_dims to make column vector
+    # expand_dims to make column vector
+    h2 = np.expand_dims(np.diag(Y2), axis=1)
     q2 = np.expand_dims(np.diag(G @ G.conj().T), axis=1) / h2
     p2 = q2.copy()
-    ops = np.zeros((1, 4))  # counters: 1) terminal; 2) nodes; 3) sub-nodes; 4) calls
+    # counters: 1) terminal; 2) nodes; 3) sub-nodes; 4) calls
+    ops = np.zeros((1, 4))
     B = np.zeros((nc, 1))
     sset = np.zeros((nc, n))
     ib = 1
