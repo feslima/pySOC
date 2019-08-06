@@ -14,7 +14,6 @@ np.set_printoptions(formatter={'int': '{:d}'.format})
 
 __all__ = ['pb3wc']
 
-
 def pb3wc(gy: np.ndarray, gyd: np.ndarray, wd: np.ndarray, wn: np.ndarray,
           juu: np.ndarray, jud: np.ndarray, n: int, tlimit: int = np.Inf,
           nc: int = 1):
