@@ -113,6 +113,17 @@ nd=5;
     upf=false;
     upff=true;
     
+    [ny, nu] = size(G1);
+    [~, nd] = size(Gd1);
+    
+    fileID = fopen('matlab.log', 'w+');
+    fprintf(fileID, 'ny%d_nu%d_nd%d_n%d_nc%d\n\n',ny,nu,nd,n,nc);
+    
+    log_bbl3 = true;
+    log_upprune = true;
+    log_downprune = true;
+    log_update = false;
+    
     % the recursive solver
     bbL3sub(fx,rem);
     % convert bound to loss
@@ -120,11 +131,14 @@ nd=5;
     sset=sort(sset(idx,:),2);
     ctime=cputime-ctime0;
     
-    [ny, nu] = size(G1);
-    [~, nd] = size(Gd1);
+    fclose(fileID);
     save(['../mat_files/pb3wc/results/' sprintf('ny%d_nu%d_nd%d_n%d_nc%d.mat',ny,nu,nd,n,nc)], 'B','sset', 'ops', 'ctime', 'flag')
     
     function bn=bbL3sub(fx0,rem0)
+        if log_bbl3
+            fprintf(fileID, ['BBL3SUB\t\t- ', repmat('%g, ', 1, numel(ops)-1), '%g | %g | %g\n'], ops, sum(fx), sum(rem));
+        end
+        
         % recursive solver
         bn=0;
         if cputime-ctime0>tlimit
@@ -279,6 +293,10 @@ nd=5;
     end
 
     function upprune
+        if log_upprune
+            fprintf(fileID, ['UPPRUNE\t\t- ', repmat('%g, ', 1, numel(ops)-1), '%g | %g | %g\n'], ops, sum(fx), sum(rem));
+        end
+        
         % Partially upwards pruning
         upf=true;
         [R1,f]=chol(Y2(fx,fx));     % nf x nf
@@ -351,6 +369,10 @@ nd=5;
     end
 
     function downprune
+        if log_downprune
+            fprintf(fileID, ['DOWNPRUNE\t- ', repmat('%g, ', 1, numel(ops)-1), '%g | %g | %g\n'], ops, sum(fx), sum(rem));
+        end
+        
         % downwards pruning
         downf=true;
         s0=fx|rem;
@@ -409,6 +431,9 @@ nd=5;
     end
 
     function bf0=update(s)
+        if log_update
+            fprintf(fileID, ['UPDATE\t\t- ', repmat('%g, ', 1, numel(ops)-1), '%g | %g | %g\n'], ops, sum(fx), sum(rem));
+        end
         % termal cases to update the bound
         X=chol(Y2(s,s))'\G(s,:);
         lambda=eig(X'*X);

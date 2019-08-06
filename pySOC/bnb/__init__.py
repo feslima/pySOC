@@ -1,4 +1,5 @@
 import copy
+import logging
 import timeit
 
 import numpy as np
@@ -7,7 +8,9 @@ from scipy.linalg import sqrtm
 
 from ..utils.matrixdivide import mldivide, mrdivide
 
-# TODO: write documentation of pb3wc (including notes, raises, returns and ref)
+logging.basicConfig(level=logging.CRITICAL,
+                    filename='python.log', filemode='w')
+np.set_printoptions(formatter={'int': '{:d}'.format})
 
 
 def pb3wc(gy: np.ndarray, gyd: np.ndarray, wd: np.ndarray, wn: np.ndarray,
@@ -194,7 +197,7 @@ def pb3wc(gy: np.ndarray, gyd: np.ndarray, wd: np.ndarray, wn: np.ndarray,
     p2 = copy.deepcopy(q2)
 
     # counters: 1) terminal; 2) nodes; 3) sub-nodes; 4) calls
-    ops = np.zeros((4,))
+    ops = np.zeros((4,), dtype=int)
 
     B = np.zeros((nc,))
     sset = np.zeros((nc, n))
@@ -205,8 +208,8 @@ def pb3wc(gy: np.ndarray, gyd: np.ndarray, wd: np.ndarray, wn: np.ndarray,
     down_v = copy.deepcopy(fx)
     down_r = copy.deepcopy(fx)
     nf = 0
-    n2 = copy.deepcopy(n)
-    m2 = copy.deepcopy(r)
+    n2 = n
+    m2 = r
 
     # initalize
     f = False
@@ -254,6 +257,8 @@ def _bbL3sub(fx0: np.ndarray, rem0: np.ndarray, params: BnBParams):
     # unpacking parameters values
     p = params
 
+    logging.debug('BBL3SUB\t\t- %s | %s | %s', p.ops, p.fx.sum(), p.rem.sum())
+
     # recursive solver
     bn = 0
     if timeit.default_timer() - p.ctime0 > p.tlimit:
@@ -267,7 +272,7 @@ def _bbL3sub(fx0: np.ndarray, rem0: np.ndarray, params: BnBParams):
     p.m2 = np.sum(p.rem)
     p.n2 = p.n - p.nf
 
-    while not p.f and 0 <= p.n2 <= p.m2:  # loop for second branches
+    while not p.f and 0 <= p.n2 < p.m2:  # loop for second branches
         while not p.f and 0 < p.n2 < p.m2 and \
                 (not p.downf or not p.upf or not p.bf):
             # loop for bidirectional pruning
@@ -357,7 +362,7 @@ def _bbL3sub(fx0: np.ndarray, rem0: np.ndarray, params: BnBParams):
             rem1[idd] = False
             p.downf = True
             p.upf = False
-            p.bn = _bbL3sub(p.fx, rem1, p) - 1
+            bn = _bbL3sub(p.fx, rem1, p) - 1
             p.downf = False
             p.upf = True
         else:  # downward branching
@@ -413,6 +418,8 @@ def _bbL3sub(fx0: np.ndarray, rem0: np.ndarray, params: BnBParams):
 def _upprune(params: BnBParams) -> None:
     # parameters unpacking
     p = params
+
+    logging.debug('UPPRUNE\t\t- %s | %s | %s', p.ops, p.fx.sum(), p.rem.sum())
 
     # partially upwards pruning
     p.upf = True
@@ -513,6 +520,8 @@ def _downprune(params: BnBParams) -> None:
     # parameters unpacking
     p = params
 
+    logging.debug('DOWNPRUNE\t- %s | %s | %s', p.ops, p.fx.sum(), p.rem.sum())
+
     # downwards pruning
     p.downf = True
     s0 = np.logical_or(p.fx, p.rem)
@@ -522,10 +531,10 @@ def _downprune(params: BnBParams) -> None:
         # single update
         D = p.Xd[np.ix_(p.rem, p.rem)]
         x = p.Xd[np.ix_(p.rem, t)]
-        D -= x @ mrdivide(x.T, p.Xd[np.ix_(t, t)])
+        D = D - x @ mrdivide(x.T, p.Xd[np.ix_(t, t)])
         U = p.Xu[np.ix_(p.rem, p.rem)]
         x = p.Xu[np.ix_(p.rem, t)]
-        U -= x @ mrdivide(x.T, p.Xu[np.ix_(t, t)])
+        U = U - x @ mrdivide(x.T, p.Xu[np.ix_(t, t)])
         p.down_v = copy.deepcopy(s0)
 
     elif p.bf and np.array_equal(p.down_v, s0) and \
@@ -587,6 +596,8 @@ def _update(s: np.ndarray, params: BnBParams):
     # parameters unpacking
     p = params
 
+    logging.debug('UPDATE - %s | %s | %s', p.ops, p.fx.sum(), p.rem.sum())
+
     # terminal cases to update the bound
     X = mldivide(sp.linalg.cholesky(p.Y2[np.ix_(s, s)]).T, p.G[s, :])
     lmbda = np.linalg.eig(X.T @ X)[0]
@@ -595,9 +606,9 @@ def _update(s: np.ndarray, params: BnBParams):
     if not bf0:
         p.B[p.ib] = np.min(lmbda)
         p.sset[p.ib, :] = np.nonzero(s)[0]
-        bound0 = copy.deepcopy(p.bound)
+        bound0 = p.bound
         p.ib = np.argmin(p.B)
-        p.bound = p.B[p.ib]
+        p.bound = np.min(p.B)
         p.bf = bound0 == p.bound
 
     return bf0
