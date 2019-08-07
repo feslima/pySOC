@@ -14,6 +14,7 @@ np.set_printoptions(formatter={'int': '{:d}'.format})
 
 __all__ = ['pb3wc']
 
+
 def pb3wc(gy: np.ndarray, gyd: np.ndarray, wd: np.ndarray, wn: np.ndarray,
           juu: np.ndarray, jud: np.ndarray, n: int, tlimit: int = np.Inf,
           nc: int = 1):
@@ -233,7 +234,7 @@ def pb3wc(gy: np.ndarray, gyd: np.ndarray, wd: np.ndarray, wn: np.ndarray,
     B = np.sort(0.5 / B, axis=None)
 
     # the +1 to change from 0 to 1 index
-    sset = np.sort(sset[idx, :], axis=1) + 1
+    sset = np.sort(sset[idx, :], axis=1).astype(np.int64) + 1
     ctime = timeit.default_timer() - ctime0
 
     # TODO: write test routine to compare results with matlab
