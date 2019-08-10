@@ -1,6 +1,6 @@
 import scipy.io as spio
 import numpy as np
-from pySOC.soc.h_eval_simplified import helm
+from pySOC.soc import helm
 
 import pathlib
 
