@@ -5,8 +5,8 @@ import numpy as np
 from numpy.linalg import cond, norm, svd
 from scipy.linalg import sqrtm, pinv
 
-from pySOC.bnb import pb3wc
-from pySOC.utils.matrixdivide import mldivide, mrdivide
+from pysoc.bnb import pb3wc
+from pysoc.utils.matrixdivide import mldivide, mrdivide
 
 
 def helm(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
@@ -45,19 +45,19 @@ def helm(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
         Worst case losses for each possible control structure, ascending order.
 
     average_loss_list: np.ndarray
-        Average loss for each possible control structure. Following 
+        Average loss for each possible control structure. Following
         `worst_loss_list` order.
 
     sset_bnb: np.ndarray
-        Subsets CV indexes for each possible control structure, 
+        Subsets CV indexes for each possible control structure,
         following `worst_loss_list` order.
 
     cond_list: np.ndarray
-        Conditional number for each possible control structure in `Gy_ss_list`,
+        Conditional number for each possible control structure in `Gy_list`,
         following `worst_loss_list` order.
 
     H_list: list
-        List of H matrices for each possible control structure, following 
+        List of H matrices for each possible control structure, following
         `worst_loss_list` order.
 
     Gy_list: list
@@ -70,21 +70,21 @@ def helm(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
 
     F_list : list
         List of locally optimal sensitivity matrices, following
-        `worst_loss_list` order. The elements of F represent the optimal 
+        `worst_loss_list` order. The elements of F represent the optimal
         change in y (measurements) due to changes in d (disturbances).
 
     References
     ----------
-    .. [1] V. Alstad, S. Skogestad, E. S. Hori. Optimal measurement 
+    .. [1] V. Alstad, S. Skogestad, E. S. Hori. Optimal measurement
         combinations as controlled variables. Journal of Process Control,
         19(1):138-148, 2009.
 
-    .. [2] G. P. Rangaiah, V. Kariwala. Plantwide Control: Recent Developments 
+    .. [2] G. P. Rangaiah, V. Kariwala. Plantwide Control: Recent Developments
         and Applications. 2012.
 
-    .. [3] V. Kariwala and Y. Cao, Bidirectional Branch and Bound for 
-        Controlled Variable Selection: Part II. Exact Local Method for 
-        Self-optimizing Control, Computers and Chemical Engineering, 
+    .. [3] V. Kariwala and Y. Cao, Bidirectional Branch and Bound for
+        Controlled Variable Selection: Part II. Exact Local Method for
+        Self-optimizing Control, Computers and Chemical Engineering,
         33(8):1402:1412, 2009.
     """
     # input sanitation
@@ -208,8 +208,8 @@ def hen(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
     """H evaluation for Extendend Nullspace method (HEN).
 
     The null space method ignores the implementation error. The loss depends
-    entirely on the setpoint error. The central idea of the null space method 
-    is that the loss due to setpoint error can be reduced to zero if the 
+    entirely on the setpoint error. The central idea of the null space method
+    is that the loss due to setpoint error can be reduced to zero if the
     optimal value of the CVs does not change with disturbances.
 
     Therefore, H is selected such that:
@@ -248,11 +248,11 @@ def hen(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
         Worst case losses for each possible control structure, ascending order.
 
     average_loss_list: np.ndarray
-        Average loss for each possible control structure. Following 
+        Average loss for each possible control structure. Following
         `worst_loss_list` order.
 
     sset_bnb: np.ndarray
-        Subsets CV indexes for each possible control structure, 
+        Subsets CV indexes for each possible control structure,
         following `worst_loss_list` order.
 
     cond_list: np.ndarray
@@ -260,7 +260,7 @@ def hen(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
         following `worst_loss_list` order.
 
     H_list: list
-        List of H matrices for each possible control structure, following 
+        List of H matrices for each possible control structure, following
         `worst_loss_list` order.
 
     Gy_list: list
@@ -273,15 +273,15 @@ def hen(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
 
     F_list : list
         List of locally optimal sensitivity matrices, following
-        `worst_loss_list` order. The elements of F represent the optimal 
+        `worst_loss_list` order. The elements of F represent the optimal
         change in y (measurements) due to changes in d (disturbances).
 
     References
     ----------
-    .. [1] V. Alstad, S. Skogestad. Null Space Method for Selecting Optimal 
+    .. [1] V. Alstad, S. Skogestad. Null Space Method for Selecting Optimal
         Measurement Combinations as Controlled Variables. Ind. Eng. Chem. Res.,
         46(3):846-853, 2007.
-    .. [2] G. P. Rangaiah, V. Kariwala. Plantwide Control: Recent Developments 
+    .. [2] G. P. Rangaiah, V. Kariwala. Plantwide Control: Recent Developments
         and Applications. 2012.
     """
     # input sanitation

@@ -104,7 +104,7 @@ def pb3wc(gy: np.ndarray, gyd: np.ndarray, wd: np.ndarray, wn: np.ndarray,
     Raises
     ------
     ValueError
-        When `n` < nu. Number of measurements must be greater than the number 
+        When `n` < nu. Number of measurements must be greater than the number
         of degrees of freedom.
 
     Notes
@@ -119,17 +119,17 @@ def pb3wc(gy: np.ndarray, gyd: np.ndarray, wd: np.ndarray, wn: np.ndarray,
 
     References
     ----------
-    .. [1] I. J. Halvorsen, S. Skogestad, J. C. Morud, and V. Alstad. Optimal 
+    .. [1] I. J. Halvorsen, S. Skogestad, J. C. Morud, and V. Alstad. Optimal
         selection of controlled variables. Ind. Eng. Chem. Res.,
         42(14):3273-3284, 2003.
 
-    .. [2] V. Kariwala, Y. Cao, and S. Janardhanan. Local self-optimizing 
-        control with average loss minimization. Ind. Eng. Chem. Res., 
+    .. [2] V. Kariwala, Y. Cao, and S. Janardhanan. Local self-optimizing
+        control with average loss minimization. Ind. Eng. Chem. Res.,
         47(4):1150-1158, 2008.
 
-    .. [3] V. Kariwala and Y. Cao, Bidirectional Branch and Bound for 
-        Controlled Variable Selection: Part II. Exact Local Method for 
-        Self-optimizing Control, Computers and Chemical Engineering, 
+    .. [3] V. Kariwala and Y. Cao, Bidirectional Branch and Bound for
+        Controlled Variable Selection: Part II. Exact Local Method for
+        Self-optimizing Control, Computers and Chemical Engineering,
         33(8):1402:1412, 2009.
     """
     # --------------------------- input sanitation ----------------------------
@@ -236,8 +236,6 @@ def pb3wc(gy: np.ndarray, gyd: np.ndarray, wd: np.ndarray, wn: np.ndarray,
     # the +1 to change from 0 to 1 index
     sset = np.sort(sset[idx, :], axis=1).astype(np.int64) + 1
     ctime = timeit.default_timer() - ctime0
-
-    # TODO: write test routine to compare results with matlab
 
     return B, sset, ops, ctime, flag
 

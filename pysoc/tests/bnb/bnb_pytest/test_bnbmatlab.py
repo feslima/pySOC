@@ -5,8 +5,7 @@ import numpy as np
 import pytest
 from scipy.io import loadmat
 
-from pySOC.bnb import pb3wc
-from pySOC.tests_ import BNB_FOLDERPATH
+from pysoc.bnb import pb3wc
 
 BNB_MAT_FILES_FOLDERPATH = pathlib.Path(__file__).parent.parent / 'mat_files'
 PB3WC_FOLDERPATH = BNB_MAT_FILES_FOLDERPATH / 'pb3wc'
@@ -23,7 +22,7 @@ _param_tuple_list = [(CAO_INPUT_FILENAME, res_file)
 
 @pytest.mark.parametrize("input_filename,result_filename", _param_tuple_list)
 def test_same_result(input_filename, result_filename):
-    """Test routine that verifies that results from python routine are in 
+    """Test routine that verifies that results from python routine are in
     conformity with matlab results.
     """
     input_contents = loadmat(PB3WC_INPUT_FOLDERPATH / input_filename)
