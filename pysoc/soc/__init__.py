@@ -2,7 +2,7 @@ import warnings
 from itertools import combinations
 
 import numpy as np
-from numpy.linalg import cond, norm, svd
+from numpy.linalg import cond, norm, svd, LinAlgError
 from scipy.linalg import sqrtm, pinv
 
 from pysoc.bnb import pb3wc
@@ -160,20 +160,28 @@ def helm(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
         Gy_ss = Gy[sset_bnb[u, :]-1, :]
         Gyd_ss = Gyd[sset_bnb[u, :]-1, :]
         Wny_ss = np.diag(index_Wny_ss[u, :])
-        F = -(mrdivide(Gy_ss, Juu) @ Jud - Gyd_ss)
-        Ft = np.c_[F @ Wd, Wny_ss]
-        # Simplified H evaluation, based on Yelchuru and Skogestad (2012)
-        H = mrdivide(Gy_ss.T, (Ft @ Ft.T))
 
-        H = H / norm(H, ord='fro')
+        try:
+            F = -(mrdivide(Gy_ss, Juu) @ Jud - Gyd_ss)
+            Ft = np.c_[F @ Wd, Wny_ss]
 
-        # Loss calculation
-        G = H @ Gy_ss
-        Md = -mrdivide(sqrtm(Juu), G) @ H @ F @ Wd
-        Mny = -mrdivide(sqrtm(Juu), G) @ H @ Wny_ss
-        M = np.c_[Md, Mny]
-        worst_loss = 0.5 * (np.max(svd(M)[1], axis=0)) ** 2
-        avg_loss = (1 / (6 * (ss_size + nd))) * (norm(M, ord="fro") ** 2)
+            # Simplified H evaluation, based on Yelchuru and Skogestad (2012)
+            H = mrdivide(Gy_ss.T, (Ft @ Ft.T))
+
+            H = H / norm(H, ord='fro')
+
+            # Loss calculation
+            G = H @ Gy_ss
+            Md = -mrdivide(sqrtm(Juu), G) @ H @ F @ Wd
+            Mny = -mrdivide(sqrtm(Juu), G) @ H @ Wny_ss
+            M = np.c_[Md, Mny]
+            worst_loss = 0.5 * (np.max(svd(M)[1], axis=0)) ** 2
+            avg_loss = (1 / (6 * (ss_size + nd))) * (norm(M, ord="fro") ** 2)
+        except LinAlgError:
+            H = np.full((nu, nyt), np.NaN)
+            F = np.full(Jud.shape, np.NaN)
+            worst_loss = np.Inf
+            avg_loss = np.Inf
 
         # append matrices
         H_list.append(H)
@@ -184,23 +192,8 @@ def helm(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
         average_loss_list[u] = avg_loss
         cond_list[u] = cond(Gy_ss)
 
-    index_sorted = np.argsort(worst_loss_list)
-
-    worst_loss_list = worst_loss_list[index_sorted]
-    average_loss_list = average_loss_list[index_sorted]
-    sset_bnb = sset_bnb[index_sorted, :]
-    cond_list = cond_list[index_sorted]
-
-    # generate sorted lists to return
-    zip_pairs = zip(index_sorted.tolist(), H_list, Gy_list, Gyd_list, F_list)
-    H_list, Gy_list, Gyd_list, F_list = zip(*[(h, gy, gyd, f)
-                                              for idx, h, gy, gyd, f in
-                                              sorted(zip_pairs,
-                                                     key=lambda pair: pair[0])]
-                                            )
-
-    return worst_loss_list, average_loss_list, sset_bnb, cond_list, \
-        H_list, Gy_list, Gyd_list, F_list
+    return worst_loss_list, average_loss_list, sset_bnb, cond_list,
+    H_list, Gy_list, Gyd_list, F_list
 
 
 def hen(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
