@@ -122,7 +122,7 @@ nd=5;
     log_bbl3 = true;
     log_upprune = true;
     log_downprune = true;
-    log_update = false;
+    log_update = true;
     
     % the recursive solver
     bbL3sub(fx,rem);
@@ -185,6 +185,11 @@ nd=5;
                 end
                 s=fx;
                 s(idk)=true;
+                
+                if log_bbl3
+                    fprintf(fileID, ['BBL3SUB\t\t - s (fixed) - [', repmat('%g ', 1, numel(s)-1), '%g]\n'], s);
+                end
+                
                 bn=update(s)-1;
                 if bn>0
                     bn=bn+sum(fx0)-nf;
@@ -209,6 +214,11 @@ nd=5;
 %                 if sum(s)~=n
 %                     disp(sum(s))
 %                 end
+
+                if log_bbl3
+                    fprintf(fileID, ['BBL3SUB\t\t - s (removed) - [', repmat('%g ', 1, numel(s)-1), '%g]\n'], s);
+                end
+                
                 update(s);
                 fx(idk)=true;
                 nf=nf+1;
@@ -432,11 +442,15 @@ nd=5;
 
     function bf0=update(s)
         if log_update
-            fprintf(fileID, ['UPDATE\t\t- ', repmat('%g, ', 1, numel(ops)-1), '%g | %g | %g\n'], ops, sum(fx), sum(rem));
+            fprintf(fileID, ['UPDATE\t\t- ', repmat('%g, ', 1, numel(ops)-1), '%g | %g | %g | ib(%g)\n'], ops, sum(fx), sum(rem), ib);
         end
+        
         % termal cases to update the bound
         X=chol(Y2(s,s))'\G(s,:);
         lambda=eig(X'*X);
+        
+%         lambda(abs(lambda) < eps) = 0;
+
         ops(1)=ops(1)+1;
         bf0=sum(lambda<bound);
         if ~bf0

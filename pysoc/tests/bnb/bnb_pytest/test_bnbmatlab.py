@@ -53,3 +53,29 @@ def test_same_result(input_filename, result_filename):
     assert np.allclose(sset_py, sset_mat), "sset failed"
     assert np.allclose(ops_py, ops_mat.flatten()), "ops failed"
     assert flag_py == flag_mat, 'flag failed'
+
+
+# if __name__ == "__main__":
+#     SOC_FOLDERPATH = pathlib.Path(
+#         __file__).parent.parent.parent / 'soc' / 'mat_files'
+#     SOC_INPUT = SOC_FOLDERPATH / 'input'
+#     SOC_FILENAME = 'matrices_self_opt_100pts.mat'
+
+#     mat_contents = loadmat(SOC_INPUT / SOC_FILENAME)
+
+#     # input variables
+#     Gy = mat_contents["Gy"]
+#     Gyd = mat_contents["Gyd"]
+#     Juu = mat_contents["Juu"]
+#     Jud = mat_contents["Jud"]
+#     Wd = mat_contents["Wd"]
+#     Wny = mat_contents["Wny"]
+#     Wd = np.diag(Wd)
+#     Wny = np.diag(Wny)
+
+#     n = 2
+#     nc = 45
+
+#     B_py, sset_py, ops_py, _, flag_py = pb3wc(Gy, Gyd, Wd, Wny, Juu, Jud, n,
+#                                               nc=nc)
+#     a = 1

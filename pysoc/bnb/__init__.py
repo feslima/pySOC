@@ -257,7 +257,7 @@ def _bbL3sub(fx0: np.ndarray, rem0: np.ndarray, params: BnBParams):
     # unpacking parameters values
     p = params
 
-    logging.debug('BBL3SUB\t\t- %s | %s | %s', p.ops, p.fx.sum(), p.rem.sum())
+    logging.debug('BBL3SUB\t- %s | %s | %s', p.ops, p.fx.sum(), p.rem.sum())
 
     # recursive solver
     bn = 0
@@ -309,6 +309,7 @@ def _bbL3sub(fx0: np.ndarray, rem0: np.ndarray, params: BnBParams):
 
             s = copy.deepcopy(p.fx)
             s[idk] = True
+            logging.debug('BBL3SUB\t - s (fixed) - %s', s.astype(np.int))
             bn = _update(s, p) - 1
 
             if bn > 0:
@@ -331,6 +332,7 @@ def _bbL3sub(fx0: np.ndarray, rem0: np.ndarray, params: BnBParams):
 
             p.rem[idk] = False
             s = np.logical_or(p.fx, p.rem)
+            logging.debug('BBL3SUB\t - s (removed) - %s', s.astype(np.int))
             _update(s, p)
             p.fx[idk] = True
             p.nf += 1
@@ -596,11 +598,15 @@ def _update(s: np.ndarray, params: BnBParams):
     # parameters unpacking
     p = params
 
-    logging.debug('UPDATE - %s | %s | %s', p.ops, p.fx.sum(), p.rem.sum())
+    logging.debug('UPDATE\t- %s | %s | %s | ib(%s)',
+                  p.ops, p.fx.sum(), p.rem.sum(), p.ib)
 
     # terminal cases to update the bound
     X = mldivide(sp.linalg.cholesky(p.Y2[np.ix_(s, s)]).T, p.G[s, :])
     lmbda = np.linalg.eig(X.T @ X)[0]
+    # FIXME: this expression is dependent on machine precision in eig
+    # resulting in lmbdas close to zero.
+    # lmbda[np.absolute(lmbda) < np.spacing(1)] = 0
     p.ops[0] += 1
     bf0 = np.sum(lmbda < p.bound)
     if not bf0:
