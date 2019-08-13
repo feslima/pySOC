@@ -234,7 +234,7 @@ def pb3wc(gy: np.ndarray, gyd: np.ndarray, wd: np.ndarray, wn: np.ndarray,
     B = np.sort(0.5 / B, axis=None)
 
     # the +1 to change from 0 to 1 index
-    sset = np.sort(sset[idx, :], axis=1).astype(np.int64) + 1
+    sset = np.sort(sset[idx, :], axis=1).astype(np.int64)
     ctime = timeit.default_timer() - ctime0
 
     return B, sset, ops, ctime, flag
@@ -611,7 +611,7 @@ def _update(s: np.ndarray, params: BnBParams):
     bf0 = np.sum(lmbda < p.bound)
     if not bf0:
         p.B[p.ib] = np.min(lmbda)
-        p.sset[p.ib, :] = np.nonzero(s)[0]
+        p.sset[p.ib, :] = np.nonzero(s)[0] + 1
         bound0 = p.bound
         p.ib = np.argmin(p.B)
         p.bound = np.min(p.B)
