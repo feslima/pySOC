@@ -370,21 +370,21 @@ s_valuesG  = sortrows([svG rcondG Loss_null5' indexCV_null5],'descend');
 
 % Branch and Bound (ny = nu + nd) - Just Enough measurements, maximizing
 % minimum SV for Gy~:
-[s,index_maxminG,nsv] = bnb(Gt,1);                                                  % BnB for Maximizing MSV
-[Loss_bnb3wc,sset,ops,ctime,flag] = b3wc(Gy,Gyd,Wd,Wny,Juu,Jud,inf,10);             % BnB for Worst Case Loss
-[msv,sset_msv]        = b3msv(Gt,1);                                                % BnB for Maximizing MSV (new Version By Yi Cao)
+% [s,index_maxminG,nsv] = bnb(Gt,1);                                                  % BnB for Maximizing MSV
+% [Loss_bnb3wc,sset,ops,ctime,flag] = b3wc(Gy,Gyd,Wd,Wny,Juu,Jud,inf,10);             % BnB for Worst Case Loss
+% [msv,sset_msv]        = b3msv(Gt,1);                                                % BnB for Maximizing MSV (new Version By Yi Cao)
 
-Gt_bnb                = Gt(index_maxminG,:); 
-Md                    = zeros(size(Gy,2),size(d,2));                                % Zero disturbance Loss
-Mn                    = eye(size(Gy,2));                                            % Mn = I (Remark 2 pg 6/11 Alstad et al. 2009)
-Jt                    = [sqrtm(Juu)   (sqrtm(Juu)/Juu)*Jud];                        % J~ eq. (34)
-H_bnb                 = (Mn\Jt)/Gt_bnb; auxH_bnb= H_bnb; H_bnb = H_bnb/norm(H_bnb); % H  eq. (43)
-Erf_bnb               = auxH_bnb*Gt_bnb - Jt;                                       % Error fcn, eq.(38) must be close to 0...(Remark 1 pg 6/11 (143))
-Wny_bnb               = diag(me(index_maxminG));                                    % Weightening for measurment error for BnB-chosen subset.
-Mny_bnb               = (-Jt/Gt_bnb)*Wny_bnb;                                       % Eq.    (44)
-M_bnb                 = [Md Mny_bnb];                                               % M = [Md Mny]
-Loss_bnb              = 0.5*(max(svd(M_bnb)).^2);                                   % Eq. (23), Loss => Worst-Case Scenario
-Avg_Loss_bnb          = (1/(6*(5+nd)))*((norm(M_bnb,'fro'))^2);                     % Average Loss   - Kariwala et al. 2008 eq.(11)
+% Gt_bnb                = Gt(index_maxminG,:); 
+% Md                    = zeros(size(Gy,2),size(d,2));                                % Zero disturbance Loss
+% Mn                    = eye(size(Gy,2));                                            % Mn = I (Remark 2 pg 6/11 Alstad et al. 2009)
+% Jt                    = [sqrtm(Juu)   (sqrtm(Juu)/Juu)*Jud];                        % J~ eq. (34)
+% H_bnb                 = (Mn\Jt)/Gt_bnb; auxH_bnb= H_bnb; H_bnb = H_bnb/norm(H_bnb); % H  eq. (43)
+% Erf_bnb               = auxH_bnb*Gt_bnb - Jt;                                       % Error fcn, eq.(38) must be close to 0...(Remark 1 pg 6/11 (143))
+% Wny_bnb               = diag(me(index_maxminG));                                    % Weightening for measurment error for BnB-chosen subset.
+% Mny_bnb               = (-Jt/Gt_bnb)*Wny_bnb;                                       % Eq.    (44)
+% M_bnb                 = [Md Mny_bnb];                                               % M = [Md Mny]
+% Loss_bnb              = 0.5*(max(svd(M_bnb)).^2);                                   % Eq. (23), Loss => Worst-Case Scenario
+% Avg_Loss_bnb          = (1/(6*(5+nd)))*((norm(M_bnb,'fro'))^2);                     % Average Loss   - Kariwala et al. 2008 eq.(11)
 
 % Extra measurements (ny > nu + nd) , Extended Nullspace
 

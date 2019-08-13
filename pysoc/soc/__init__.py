@@ -192,8 +192,8 @@ def helm(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
         average_loss_list[u] = avg_loss
         cond_list[u] = cond(Gy_ss)
 
-    return worst_loss_list, average_loss_list, sset_bnb, cond_list,
-    H_list, Gy_list, Gyd_list, F_list
+    return worst_loss_list, average_loss_list, sset_bnb, cond_list, \
+        H_list, Gy_list, Gyd_list, F_list
 
 
 def hen(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
@@ -244,7 +244,7 @@ def hen(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
         Average loss for each possible control structure. Following
         `worst_loss_list` order.
 
-    sset_bnb: np.ndarray
+    subset_index: np.ndarray
         Subsets CV indexes for each possible control structure,
         following `worst_loss_list` order.
 
@@ -381,6 +381,8 @@ def hen(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
     average_loss_list = average_loss_list[index_sorted]
     cond_list = cond_list[index_sorted]
 
+    index_CVs_null = index_CVs_null[index_sorted, :] + 1
+
     # generate sorted lists to return
     zip_pairs = zip(index_sorted.tolist(), H_list, Gy_list, Gyd_list, F_list)
     H_list, Gy_list, Gyd_list, F_list = zip(*[(h, gy, gyd, f)
@@ -389,5 +391,5 @@ def hen(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
                                                      key=lambda pair: pair[0])]
                                             )
 
-    return worst_loss_list, average_loss_list, cond_list, \
+    return worst_loss_list, average_loss_list, index_CVs_null, cond_list, \
         H_list, Gy_list, Gyd_list, F_list
