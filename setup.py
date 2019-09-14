@@ -4,7 +4,7 @@ with open("README.md", 'r') as fh:
     long_description = fh.read()
 
 setup(name='pysoc',
-      version='0.0.2',
+      version='0.0.3',
       description="Self-Optimizing Control as python toolbox.",
       author="Victor Manuel Cunha Alves, Felipe Souza Lima",
       author_email='feslima93@gmail.com',

@@ -148,6 +148,11 @@ def helm(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
     for c in np.arange(1, ss_size):
 
         index_Wny_ss = np.c_[index_Wny_ss, me[sset_bnb[:, c] - 1]]
+
+    if ss_size == 1:
+        # if subset size is 1, ensure index_Wny is 2D
+        index_Wny_ss = index_Wny_ss.reshape(-1, 1)
+
     H_list = []
     Gy_list = []
     Gyd_list = []
@@ -318,6 +323,9 @@ def hen(Gy: np.ndarray, Gyd: np.ndarray, Juu: np.ndarray, Jud: np.ndarray,
 
     for c in np.arange(1, ss_size):
         index_Wny_null = np.c_[index_Wny_null, me[index_CVs_null[:, c]]]
+
+    if ss_size == 1:
+        index_Wny_null = index_Wny_null.reshape(-1, 1)
 
     H_list = []
     Gy_list = []
